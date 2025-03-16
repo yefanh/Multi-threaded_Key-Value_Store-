@@ -1,44 +1,4 @@
 Assignment Overview
-This project extends Project #1 by replacing traditional socket-based communication with Remote Procedure Calls (RPC) using Java RMI (Remote Method Invocation). Additionally, the server has been modified to support multi-threading, allowing concurrent client requests to be handled efficiently.
+This project implements a multi-threaded, distributed Key-Value Store using Remote Procedure Calls (RPC) with Java RMI. The primary objective is to replicate the Key-Value Store across five distinct servers to enhance system bandwidth and availability. The client should be able to issue PUT, GET, and DELETE operations to any of the five replicas while maintaining data consistency across all replicas. To ensure strong consistency, this project implements the Two-Phase Commit (2PC) protocol, which guarantees that PUT and DELETE operations are either committed on all replicas or aborted entirely. The system assumes no server failures during execution, but the implementation is designed to handle potential network communication failures gracefully.
 
-The primary enhancements in this project include:
-1. RPC-based Communication: Java RMI is used instead of TCP/UDP sockets to enable distributed computing and simplify remote method invocation.
-2. Multi-threading Implementation: The server is designed to handle multiple concurrent client requests, ensuring efficient processing of PUT, GET, and DELETE operations.
-3. Thread-Safe Key-Value Store: The data store is implemented using ConcurrentHashMap with ReentrantReadWriteLock to ensure data consistency and avoid race conditions.
-4. Prepopulated Data Testing: The client prepopulates the server with 5 key-value pairs, performs 5 PUT, 5 GET, and 5 DELETE operations, and verifies that the system functions correctly under concurrent access.
-
-By implementing these improvements, the project demonstrates the ability to create a scalable, efficient, and concurrent Key-Value Store using Java RMI.
-
-
-
-Technical Impression
-This project provided significant learning opportunities in distributed systems and multi-threading. The shift from traditional socket programming to Java RMI highlighted the advantages of remote method invocation, such as abstraction over low-level networking and easier interaction between distributed components.
-
-Challenges Faced:
-1. Ensuring Thread Safety in a Multi-threaded Server:
-   - The biggest challenge was allowing multiple clients to interact with the server simultaneously without causing race conditions.
-   - Using ConcurrentHashMap helped prevent data corruption, while ReentrantReadWriteLock ensured that multiple reads could happen concurrently, but writes were properly synchronized.
-
-2. Configuring and Debugging Java RMI:
-   - Setting up the RMI registry correctly was crucial. Initially, the client encountered a java.rmi.NotBoundException, which was resolved by ensuring the server correctly bound the object using:
-     registry.rebind("KeyValueStore", store);
-   - Another challenge was handling network connectivity and firewall issues, which required ensuring that the RMI server was running before starting the client.
-
-3. Handling Multiple Concurrent Clients:
-   - To test concurrency, multiple instances of RMIClient were executed in parallel. The server successfully handled simultaneous requests without any inconsistencies, validating the effectiveness of the multi-threaded design.
-
-
-
-Potential Use Case
-A multi-threaded, RPC-based Key-Value Store like this project can serve as the foundation for a distributed caching system.
-Some real-world applications include:
-- In-memory caches (e.g., Redis, Memcached): The server can be extended to store frequently accessed data for high-speed retrieval.
-- Distributed NoSQL databases: Adding persistence and replication would allow the system to function as a lightweight distributed key-value database.
-- Microservices communication: Java RMI enables inter-service communication in a distributed computing environment.
-
-
-
-Final Conclusion
-This project successfully demonstrates the integration of Remote Procedure Calls (RPC) and multi-threading to create a concurrent, distributed Key-Value Store. The implementation ensures thread safety, supports multiple concurrent clients, and leverages Java RMI for efficient remote communication. The project meets all specified requirements and provides a solid foundation for further extensions, such as persistence, replication, and load balancing.
-
-By completing this project, I have gained a deeper understanding of Java RMI, multi-threading, and distributed systems, which are essential concepts for designing scalable and high-performance applications.
+Each server registers itself via Java RMI, allowing clients and other replicas to look up and invoke remote methods. A client randomly selects one of the five servers to connect to and performs a series of operations (5 PUTs, 5 GETs, and 5 DELETEs). The implementation ensures that each operation is performed concurrently and safely using ConcurrentHashMap for data storage and ReentrantReadWriteLock for thread synchronization. Overall, this project demonstrates distributed system principles, consistency guarantees, and fault-tolerant transaction management using 2PC over RPC.
