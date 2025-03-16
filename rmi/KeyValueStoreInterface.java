@@ -45,9 +45,43 @@ public interface KeyValueStoreInterface extends Remote {
      */
     String delete(String key) throws RemoteException;
 
-    // ===============  2PC 协议的远程方法  ===============
+    /**
+     * Prepares the remote store for a PUT operation.
+     * This is part of the two-phase commit protocol.
+     * 
+     * @param key   The key to be stored.
+     * @param value The value to be stored.
+     * @return "YES" if the prepare is successful; otherwise "NO".
+     * @throws RemoteException If an RMI communication error occurs.
+     */
     String preparePut(String key, String value) throws RemoteException;
+
+    /**
+     * Commits the PUT operation after a successful prepare.
+     * 
+     * @param key   The key to be stored.
+     * @param value The value to be stored.
+     * @return "OK" if the commit is successful.
+     * @throws RemoteException If an RMI communication error occurs.
+     */
     String commitPut(String key, String value) throws RemoteException;
+
+    /**
+     * Prepares the remote store for a DELETE operation.
+     * This is part of the two-phase commit protocol.
+     * 
+     * @param key The key to be deleted.
+     * @return "YES" if the prepare is successful; otherwise "NO".
+     * @throws RemoteException If an RMI communication error occurs.
+     */
     String prepareDelete(String key) throws RemoteException;
+
+    /**
+     * Commits the DELETE operation after a successful prepare.
+     * 
+     * @param key The key to be deleted.
+     * @return "OK" if the commit is successful.
+     * @throws RemoteException If an RMI communication error occurs.
+     */
     String commitDelete(String key) throws RemoteException;
 }

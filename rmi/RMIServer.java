@@ -17,20 +17,20 @@ public class RMIServer {
         }
 
         try {
-            // 1) 解析命令行参数
+            // retrieve the port and replica ports from command line arguments
             int port = Integer.parseInt(args[0]);
             String[] replicaPorts = args[1].split(",");
 
-            // 2) 在本地创建 RMI 注册表
+            // create a local registry on the specified port
             Registry localRegistry = LocateRegistry.createRegistry(port);
 
-            // 3) 先创建一个 store，暂时 replicas 为空
+            // create a new KeyValueStore instance
             KeyValueStoreImpl store = new KeyValueStoreImpl(new ArrayList<>());
 
-            // 4) 在本地注册表里绑定
+            // bind the KeyValueStore instance to the local registry
             localRegistry.rebind("KeyValueStore", store);
 
-            // 5) 尝试连接其它副本
+            // attempt to connect to other replicas
             List<KeyValueStoreInterface> replicas = new ArrayList<>();
             for (String rp : replicaPorts) {
                 try {
@@ -42,7 +42,7 @@ public class RMIServer {
                     System.err.println("Error connecting to replica on port " + rp + ": " + e.getMessage());
                 }
             }
-            // 6) 把获取到的副本存根加入到 store
+            // set the replicas in the KeyValueStore instance
             store.setReplicas(replicas);
 
             System.out.println("RMI Server started on port " + port + ", known replicas: " + replicas.size());
