@@ -5,8 +5,11 @@ import java.rmi.registry.Registry;
 import java.util.Random;
 
 /**
- * RMI Client that randomly picks one of the 5 known ports,
- * connects to a KeyValueStore, then does 5 PUTs, 5 GETs, and 5 DELETEs.
+ * RMIClient for the Paxos-based fault-tolerant Key-Value Store.
+ * It randomly selects one of the available server ports and performs:
+ * - 5 PUT operations
+ * - 5 GET operations
+ * - 5 DELETE operations
  */
 public class RMIClient {
     public static void main(String[] args) {
@@ -22,19 +25,22 @@ public class RMIClient {
             String[] keys = {"key1", "key2", "key3", "key4", "key5"};
             String[] values = {"value1", "value2", "value3", "value4", "value5"};
 
-            // 5 PUTs
+            // Perform 5 PUT operations using Paxos consensus.
             for (int i = 0; i < keys.length; i++) {
-                System.out.println("PUT " + keys[i] + ": " + store.put(keys[i], values[i]));
+                String result = store.put(keys[i], values[i]);
+                System.out.println("PUT " + keys[i] + ": " + result);
             }
 
-            // 5 GETs
+            // Perform 5 GET operations (read-only, no consensus needed).
             for (String key : keys) {
-                System.out.println("GET " + key + ": " + store.get(key));
+                String value = store.get(key);
+                System.out.println("GET " + key + ": " + value);
             }
 
-            // 5 DELETEs
+            // Perform 5 DELETE operations using Paxos consensus.
             for (String key : keys) {
-                System.out.println("DELETE " + key + ": " + store.delete(key));
+                String result = store.delete(key);
+                System.out.println("DELETE " + key + ": " + result);
             }
 
         } catch (Exception e) {

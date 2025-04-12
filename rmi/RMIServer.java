@@ -6,8 +6,10 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * RMI Server that starts a local registry, binds its KeyValueStore,
- * and attempts to connect to other replicas based on the ports given.
+ * RMIServer starts an RMI registry, instantiates a Paxos-based Key-Value Store,
+ * and attempts to connect to other replica servers.
+ *
+ * Usage: java rmi.RMIServer <port> <commaSeparatedReplicaPorts>
  */
 public class RMIServer {
     public static void main(String[] args) {
@@ -17,20 +19,19 @@ public class RMIServer {
         }
 
         try {
-            // retrieve the port and replica ports from command line arguments
             int port = Integer.parseInt(args[0]);
             String[] replicaPorts = args[1].split(",");
 
-            // create a local registry on the specified port
+            // Create a local RMI registry on the specified port.
             Registry localRegistry = LocateRegistry.createRegistry(port);
 
-            // create a new KeyValueStore instance
+            // Instantiate the KeyValueStore implementation with an empty replica list initially.
             KeyValueStoreImpl store = new KeyValueStoreImpl(new ArrayList<>());
 
-            // bind the KeyValueStore instance to the local registry
+            // Bind the store instance to the registry.
             localRegistry.rebind("KeyValueStore", store);
 
-            // attempt to connect to other replicas
+            // Connect to other replicas.
             List<KeyValueStoreInterface> replicas = new ArrayList<>();
             for (String rp : replicaPorts) {
                 try {
@@ -42,10 +43,11 @@ public class RMIServer {
                     System.err.println("Error connecting to replica on port " + rp + ": " + e.getMessage());
                 }
             }
-            // set the replicas in the KeyValueStore instance
+            // Update the store’s replica list.
             store.setReplicas(replicas);
 
-            System.out.println("RMI Server started on port " + port + ", known replicas: " + replicas.size());
+            System.out.println("RMI Server started on port " + port +
+                               ". Connected to " + replicas.size() + " replicas.");
         } catch (Exception e) {
             System.err.println("Server exception: " + e.getMessage());
             e.printStackTrace();
